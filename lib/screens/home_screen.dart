@@ -213,7 +213,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           Row(
             children: [
               const Text(
-                'WatchList',
+                'TheList',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 28,
@@ -519,3 +519,4 @@ class BookmarkSearchDelegate extends SearchDelegate<Bookmark?> {
     );
   }
 }
+
