@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../models/bookmark.dart';
 import '../services/database_service.dart';
+import '../services/backup_service.dart';
 import '../widgets/parallax_card.dart';
 import '../widgets/bookmark_edit_sheet.dart';
 
@@ -16,6 +17,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   late TabController _tabController;
   final DatabaseService _db = DatabaseService.instance;
+  final BackupService _backup = BackupService.instance;
   
   List<Bookmark> _bookmarks = [];
   Category? _selectedCategory;
@@ -135,11 +137,46 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     }
   }
 
+  Future<void> _exportBookmarks() async {
+    if (_bookmarks.isEmpty) {
+      _showError('No bookmarks to export');
+      return;
+    }
+
+    _showMessage('Preparing export...');
+    final success = await _backup.exportBookmarks();
+    
+    if (!success) {
+      _showError('Export failed');
+    }
+  }
+
+  Future<void> _importBookmarks() async {
+    final result = await _backup.importBookmarks();
+    
+    if (result.success) {
+      _showMessage(result.message);
+      _loadBookmarks();
+    } else {
+      _showError(result.message);
+    }
+  }
+
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
         backgroundColor: Colors.red.shade700,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.green.shade700,
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -206,7 +243,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   Widget _buildHeader() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+      padding: const EdgeInsets.fromLTRB(20, 16, 12, 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -234,6 +271,39 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     ),
                   );
                 },
+              ),
+              PopupMenuButton<String>(
+                icon: const Icon(Icons.more_vert, color: Colors.white70),
+                color: const Color(0xFF2D2D2D),
+                onSelected: (value) {
+                  if (value == 'export') {
+                    _exportBookmarks();
+                  } else if (value == 'import') {
+                    _importBookmarks();
+                  }
+                },
+                itemBuilder: (context) => [
+                  const PopupMenuItem(
+                    value: 'export',
+                    child: Row(
+                      children: [
+                        Icon(Icons.upload, color: Colors.white70, size: 20),
+                        SizedBox(width: 12),
+                        Text('Export Bookmarks', style: TextStyle(color: Colors.white)),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'import',
+                    child: Row(
+                      children: [
+                        Icon(Icons.download, color: Colors.white70, size: 20),
+                        SizedBox(width: 12),
+                        Text('Import Bookmarks', style: TextStyle(color: Colors.white)),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -519,4 +589,3 @@ class BookmarkSearchDelegate extends SearchDelegate<Bookmark?> {
     );
   }
 }
-
