@@ -31,7 +31,7 @@ class WatchListApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'WatchList',
+      title: 'TheList',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
@@ -59,3 +59,4 @@ class WatchListApp extends StatelessWidget {
     );
   }
 }
+
