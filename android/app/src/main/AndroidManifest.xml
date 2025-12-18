@@ -3,7 +3,7 @@
     <uses-permission android:name="android.permission.INTERNET"/>
     
     <application
-        android:label="WatchList"
+        android:label="TheList"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true">
@@ -56,3 +56,4 @@
         </intent>
     </queries>
 </manifest>
+
